@@ -34,13 +34,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.util.Models;
-import org.openrdf.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.Models;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import java.io.File;
 import java.net.URI;
@@ -353,7 +353,7 @@ public class RDFMapperTests {
 		                                .hash().toString();
 
 		assertEquals(aExpected,
-		             ((org.openrdf.model.URI) aGraph.iterator().next().getSubject()).getLocalName());
+		             ((org.eclipse.rdf4j.model.URI) aGraph.iterator().next().getSubject()).getLocalName());
 	}
 
 	@Test

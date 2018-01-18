@@ -16,7 +16,7 @@
 package com.complexible.pinto.impl;
 
 import com.complexible.pinto.SourcedObject;
-import org.openrdf.model.Model;
+import org.eclipse.rdf4j.model.Model;
 
 /**
  * <p>Default implementation of {@link SourcedObject}</p>

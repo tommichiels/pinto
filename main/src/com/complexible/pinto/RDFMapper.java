@@ -15,6 +15,48 @@
 
 package com.complexible.pinto;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.complexible.common.base.Dates;
 import com.complexible.common.base.Option;
 import com.complexible.common.base.Options;
@@ -44,46 +86,8 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 
 /**
  * <p>Mapper for turning Java beans into RDF and RDF into Java beans.</p>
@@ -320,18 +324,28 @@ public final class RDFMapper {
 				aObj = aMap;
 			}
 			else {
-				if (aValues.size() > 1) {
+				
+				final String language = getLanguage(aDescriptor);
+				
+				if (aValues.size() > 1 && language == null ) {
 					if (mMappingOptions.is(MappingOptions.IGNORE_CARDINALITY_VIOLATIONS)) {
 						LOGGER.warn("Property type of {} is {}, expected a single value, but {} were found.  MappingOptions is set to ignore this, so using only the first value.",
 						            aDescriptor.getName(), aDescriptor.getPropertyType(), aValues.size());
 					}
+					
 					else {
 						throw new RDFMappingException(String.format("%s values found, but property type is %s",
 						                                            aValues.size(), aDescriptor.getPropertyType()));
 					}
 				}
+				
+				Value aValue;
+				if(language == null){
 
-				final Value aValue = aValues.iterator().next();
+				    aValue = aValues.iterator().next();
+				}else{
+					aValue= aValues.stream().filter(x -> ((Literal)x).getLanguage().orElse("no language").equals(language)).findFirst().get();
+				}
 
 				aObj = valueToObject(aValue, theGraph, aDescriptor);
 			}
@@ -574,11 +588,11 @@ public final class RDFMapper {
 	}
 
 	private Object valueToObject(final Value theValue, final Model theGraph, final PropertyDescriptor theDescriptor) {
-		if (theValue instanceof Literal) {
+		if (theValue instanceof Literal || theValue instanceof SimpleLiteral) {
 			final Literal aLit = (Literal) theValue;
 			final IRI aDatatype = aLit.getDatatype() != null ? aLit.getDatatype() : null;
 
-			if (aDatatype == null || XMLSchema.STRING.equals(aDatatype) || RDFS.LITERAL.equals(aDatatype)) {
+			if (aDatatype == null || XMLSchema.STRING.equals(aDatatype) || RDFS.LITERAL.equals(aDatatype) || RDF.LANGSTRING.equals(aDatatype)) {
 				String aStr = aLit.getLabel();
 
 				if (theDescriptor != null && Character.TYPE.isAssignableFrom(theDescriptor.getPropertyType())) {
@@ -845,6 +859,17 @@ public final class RDFMapper {
 		}
 		else {
 			return iri(aAnnotation.value());
+		}
+	}
+	
+	private String getLanguage(final PropertyDescriptor thePropertyDescriptor) {
+		final RdfProperty aAnnotation = getPropertyAnnotation(thePropertyDescriptor);
+
+		if (aAnnotation == null || Strings.isNullOrEmpty(aAnnotation.language())) {
+			return null;
+		}
+		else {
+			return aAnnotation.language();
 		}
 	}
 

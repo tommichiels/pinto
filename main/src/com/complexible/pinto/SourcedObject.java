@@ -16,7 +16,7 @@
 package com.complexible.pinto;
 
 import com.google.common.annotations.Beta;
-import org.openrdf.model.Model;
+import org.eclipse.rdf4j.model.Model;
 
 /**
  * <p>Marker interface for an object which was generated from RDF</p>

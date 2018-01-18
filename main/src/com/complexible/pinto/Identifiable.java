@@ -15,7 +15,7 @@
 
 package com.complexible.pinto;
 
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * <p>Marker interface for something which has an rdf:ID associated with it</p>

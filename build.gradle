@@ -27,7 +27,7 @@ sourceSets {
 }
 
 group = "com.complexible.pinto"
-version = "2.0.1-SNAPSHOT"
+version = "2.0.1-BOSA-SNAPSHOT"
 
 ext {
 	projectDescription = "Pinto: A lightweight framework for mapping Java Beans into RDF and back again"
@@ -38,6 +38,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 repositories {
+    mavenLocal()
 	mavenCentral()
 	maven {
 		url "http://maven.stardog.com"
@@ -52,16 +53,16 @@ dependencies {
 	compile "commons-beanutils:commons-beanutils:1.9.2"
 	compile "commons-codec:commons-codec:1.10"
 
-	compile "com.complexible.common:cp-openrdf-utils:4.0.2"
+	compile "com.complexible.common:cp-openrdf-utils:4.0.1_BOSA-SNAPSHOT"
 	compile ("com.complexible.common:cp-common-utils:5.0.1") {
 		exclude group: "org.slf4j"
 	}
 
 	// these should be coming from cp-openrdf-utils, but it's missing these
-	compile "org.openrdf.sesame:sesame-rio-ntriples:4.0.0"
+	// compile "org.openrdf.sesame:sesame-rio-ntriples:4.0.0"
 
-	compile "org.slf4j:slf4j-api:1.7.7"
-	compile "org.slf4j:slf4j-jdk14:1.7.7"
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
 
 	testCompile 'junit:junit:4.11'
 }

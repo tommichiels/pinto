@@ -1,0 +1,13 @@
+Change following files to use new RDF4J and multilanguage support in deserializing.
+
+
+	modified:   .gitignore
+	modified:   build.gradle
+	modified:   main/src/com/complexible/pinto/Identifiable.java
+	modified:   main/src/com/complexible/pinto/RDFCodec.java
+	modified:   main/src/com/complexible/pinto/RDFMapper.java
+	modified:   main/src/com/complexible/pinto/SourcedObject.java
+	modified:   main/src/com/complexible/pinto/codecs/UUIDCodec.java
+	modified:   main/src/com/complexible/pinto/impl/IdentifiableImpl.java
+	modified:   main/src/com/complexible/pinto/impl/SourcedObjectImpl.java
+	modified:   test/src/com/complexible/pinto/RDFMapperTests.java

@@ -16,7 +16,7 @@
 package com.complexible.pinto.impl;
 
 import com.complexible.pinto.Identifiable;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * <p>Default implementation of {@link Identifiable}</p>

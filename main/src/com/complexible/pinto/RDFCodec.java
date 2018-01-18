@@ -15,8 +15,8 @@
 
 package com.complexible.pinto;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * <p>Interface for a codec which can (de)serialize an object.  Useful in situations where the instance does not
